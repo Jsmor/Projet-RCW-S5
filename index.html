@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projet RCW - Analyse Démographique</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src="data.js"></script>
+
+    <style>
+        /* --- STYLE CSS (Mise en page) --- */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #f0f2f5; color: #333; }
+        
+        /* En-tête */
+        header { background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 1.5rem; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        header h1 { margin: 0; font-size: 1.8rem; }
+        header p { margin: 5px 0 0; opacity: 0.8; font-size: 0.9rem; }
+        
+        /* Conteneur Principal */
+        .container { display: flex; flex-wrap: wrap; padding: 20px; gap: 20px; max-width: 1200px; margin: 0 auto; }
+        
+        /* Colonne de Gauche (Contrôles) */
+        .sidebar { flex: 1; min-width: 250px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: fit-content; }
+        
+        /* Colonne de Droite (Visu) */
+        .main-content { flex: 3; min-width: 600px; display: flex; flex-direction: column; gap: 20px; }
+        
+        /* Cartes (Panneaux blancs) */
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h2 { margin-top: 0; font-size: 1.2rem; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px; }
+
+        /* Contrôles Formulaire */
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #7f8c8d; }
+        select { width: 100%; padding: 12px; margin-bottom: 25px; border: 1px solid #bdc3c7; border-radius: 6px; font-size: 1rem; background-color: #f9f9f9; }
+        
+        /* Indicateurs Clés (KPI) */
+        .kpi-box { text-align: center; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        .kpi-value { font-size: 2.2rem; font-weight: bold; color: #2c3e50; }
+        .kpi-label { font-size: 0.85rem; text-transform: uppercase; color: #95a5a6; letter-spacing: 1px; }
+
+        /* Carte Thermique (Grid) */
+        #map-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 4px; padding: 10px; }
+        .dept-box { 
+            aspect-ratio: 1; 
+            display: flex; align-items: center; justify-content: center; 
+            color: white; font-size: 0.75rem; font-weight: bold; 
+            cursor: pointer; border-radius: 4px; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .dept-box:hover { transform: scale(1.15); z-index: 10; box-shadow: 0 0 10px rgba(0,0,0,0.2); border: 1px solid white; }
+        
+        /* Indicateur de Mode (Simulation vs Réel) */
+        #connection-status { font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; display: inline-block; margin-top: 10px; }
+        .status-ok { background-color: #d4edda; color: #155724; }
+        .status-mock { background-color: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🌍 Observatoire Démographique (RCW)</h1>
+    <p>Analyse de l'évolution du taux d'accroissement naturel en France (2013-2023)</p>
+    <div id="status-container"></div>
+</header>
+
+<div class="container">
+    <div class="sidebar">
+        <h2>🔍 Sélection</h2>
+        <label for="deptSelect">Département :</label>
+        <select id="deptSelect"></select>
+
+        <div class="kpi-box">
+            <div class="kpi-value" id="val-pop">-</div>
+            <div class="kpi-label">Population (2023)</div>
+        </div>
+        
+        <div class="kpi-box">
+            <div class="kpi-value" id="val-taux">-</div>
+            <div class="kpi-label">Taux d'Accroissement</div>
+        </div>
+
+        <p style="font-size: 0.8rem; color: #bdc3c7; margin-top: 30px; text-align: center;">
+            Projet Universitaire - IUT Orsay<br>
+            Données INSEE / Wikidata
+        </p>
+    </div>
+
+    <div class="main-content">
+        <div class="card">
+            <h2>📈 Évolution Temporelle (10 ans)</h2>
+            <div style="height: 300px;">
+                <canvas id="evolutionChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🗺️ Carte Thermique (Moyenne Décennale)</h2>
+            <p style="font-size: 0.9rem; color: #7f8c8d; margin-bottom: 15px;">
+                Cliquez sur un carré pour voir le détail du département. <br>
+                <span style="color:#e74c3c">■</span> Décroissance | <span style="color:#27ae60">■</span> Croissance
+            </p>
+            <div id="map-container"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* --- CONFIGURATION --- */
+    // Adaptez l'URL si votre GraphDB est distant ou a un autre nom de repo
+    const GRAPHDB_URL = 'http://localhost:7200/repositories/projet_rcw';
+    
+    // Requête SPARQL officielle pour récupérer les données
+    const SPARQL_QUERY = `
+        PREFIX ex: <http://example.org/ontology/>
+        SELECT ?code ?annee ?taux ?pop
+        WHERE {
+            ?obs a ex:ObservationDemographique ;
+                 ex:concerneDepartement ?dept ;
+                 ex:aPourAnnee ?annee ;
+                 ex:tauxAccroissement ?taux ;
+                 ex:populationTotale ?pop .
+            ?dept ex:codeINSEE ?code .
+        }
+    `;
+
+    let myChart = null; // Variable globale pour le graphique
+
+    /* --- INITIALISATION --- */
+    window.onload = async function() {
+        const statusDiv = document.getElementById('status-container');
+        
+        console.log("🔄 Tentative de connexion à GraphDB...");
+        
+        try {
+            // 1. On essaie de contacter le vrai serveur Sémantique
+            await chargerDepuisGraphDB();
+            
+            // Si pas d'erreur, on affiche le statut "Connecté"
+            statusDiv.innerHTML = '<span id="connection-status" class="status-ok">🟢 Connecté au Web Sémantique (GraphDB)</span>';
+        
+        } catch (erreur) {
+            // 2. Si ça échoue (Serveur éteint, CORS, Base vide), on passe en mode secours
+            console.warn("⚠️ GraphDB inaccessible : " + erreur.message);
+            console.log("✅ Basculement automatique sur les données simulées (data.js).");
+            
+            statusDiv.innerHTML = '<span id="connection-status" class="status-mock">🟠 Mode Simulation (Données Locales)</span>';
+            
+            // Vérification que le fichier data.js a bien été chargé
+            if (typeof dbData !== 'undefined') {
+                initApp(dbData);
+            } else {
+                alert("ERREUR CRITIQUE : Impossible de charger les données.\n1. GraphDB ne répond pas.\n2. Le fichier data.js est introuvable (lancez le script Python).");
+            }
+        }
+    };
+
+    /* --- FONCTIONS DE DONNÉES --- */
+
+    // Tente de récupérer les vraies données RDF via l'API REST de GraphDB
+    async function chargerDepuisGraphDB() {
+        const url = GRAPHDB_URL + '?query=' + encodeURIComponent(SPARQL_QUERY);
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { 
+                'Accept': 'application/sparql-results+json' // Header indispensable
+            }
+        });
+
+        if (!response.ok) throw new Error("Erreur HTTP " + response.status);
+
+        const json = await response.json();
+        const bindings = json.results.bindings;
+
+        if (!bindings || bindings.length === 0) throw new Error("La requête SPARQL n'a retourné aucun résultat.");
+
+        // On nettoie les données brutes SPARQL pour les rendre faciles à utiliser
+        const cleanData = bindings.map(row => ({
+            code: row.code.value,
+            annee: parseInt(row.annee.value),
+            population: parseInt(row.pop.value),
+            taux: parseFloat(row.taux.value)
+        }));
+
+        console.log(`✅ ${cleanData.length} observations chargées depuis GraphDB.`);
+        initApp(cleanData); // On lance l'app avec les vraies données
+    }
+
+    /* --- FONCTIONS D'AFFICHAGE (Vue) --- */
+
+    // Initialise l'interface (Select + Carte)
+    function initApp(data) {
+        const select = document.getElementById('deptSelect');
+        const mapDiv = document.getElementById('map-container');
+        
+        // Obtenir la liste unique des codes départements
+        const uniqueDepts = [...new Set(data.map(d => d.code))].sort();
+
+        // Vider les conteneurs (au cas où)
+        select.innerHTML = "";
+        mapDiv.innerHTML = "";
+
+        uniqueDepts.forEach(code => {
+            // 1. Remplir le menu déroulant
+            const opt = document.createElement('option');
+            opt.value = code;
+            opt.innerText = `Dépt ${code}`;
+            select.appendChild(opt);
+
+            // 2. Créer la case de la carte thermique
+            const deptData = data.filter(d => d.code === code);
+            // Calcul de la moyenne du taux sur la période
+            const avgTaux = deptData.reduce((sum, d) => sum + d.taux, 0) / deptData.length;
+            
+            const div = document.createElement('div');
+            div.className = 'dept-box';
+            div.innerText = code;
+            div.title = `Dépt ${code} : Moyenne ${avgTaux.toFixed(2)}%`;
+            
+            // Logique de couleur (Vert positif, Rouge négatif)
+            const intensity = Math.min(Math.abs(avgTaux) * 200, 255); 
+            if (avgTaux < 0) {
+                // Nuance de Rouge
+                div.style.backgroundColor = `rgb(255, ${255 - intensity}, ${255 - intensity})`;
+                div.style.color = intensity > 150 ? 'white' : '#333';
+            } else {
+                // Nuance de Vert (Bleuté)
+                div.style.backgroundColor = `rgb(${255 - intensity}, 255, ${255 - intensity})`; 
+                div.style.color = '#333';
+            }
+            
+            // Interaction Clic sur la carte
+            div.onclick = () => {
+                select.value = code;
+                updateDashboard(data);
+            };
+
+            mapDiv.appendChild(div);
+        });
+
+        // Charger les données du premier département de la liste
+        if(uniqueDepts.length > 0) {
+            updateDashboard(data);
+        }
+
+        // Écouteur d'événement sur le menu déroulant
+        select.onchange = () => updateDashboard(data);
+    }
+
+    // Met à jour les Graphiques et KPI quand on change de département
+    function updateDashboard(dataSource) {
+        const selectedCode = document.getElementById('deptSelect').value;
+        // Filtrer et trier par année
+        const dataDept = dataSource.filter(d => d.code === selectedCode).sort((a,b) => a.annee - b.annee);
+        
+        if (dataDept.length === 0) return;
+
+        // --- Mise à jour des KPI ---
+        const lastRecord = dataDept[dataDept.length - 1]; // Dernière année disponible
+        
+        // Formatage Population (ex: 1 200 k)
+        const popFormat = (lastRecord.population / 1000).toFixed(0) + ' k';
+        document.getElementById('val-pop').innerText = popFormat;
+        
+        // Formatage Taux
+        const tauxElem = document.getElementById('val-taux');
+        tauxElem.innerText = lastRecord.taux + ' %';
+        tauxElem.style.color = lastRecord.taux >= 0 ? '#27ae60' : '#c0392b'; // Vert ou Rouge
+
+        // --- Mise à jour du Graphique (Chart.js) ---
+        const ctx = document.getElementById('evolutionChart').getContext('2d');
+        
+        // Si un graphique existe déjà, on le détruit pour en recréer un
+        if (myChart) myChart.destroy();
+        
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dataDept.map(d => d.annee),
+                datasets: [{
+                    label: `Taux d'accroissement - Dépt ${selectedCode}`,
+                    data: dataDept.map(d => d.taux),
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.15)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#2980b9',
+                    pointRadius: 5,
+                    fill: true,
+                    tension: 0.3 // Courbe lissée
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: '#f0f0f0' },
+                        title: { display: true, text: 'Taux (%)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
