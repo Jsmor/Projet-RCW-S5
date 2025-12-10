@@ -6,30 +6,28 @@ import { URL_REGION_GEOJSON } from './data_processor.js';
  * Affiche la carte choroplèthe du Taux Naturel (‰) agrégé au niveau régional.
  */
 export function setupRegionMap(regionalData) {
-    if (typeof L === 'undefined' || regionalData.length === 0) return;
-
-    // --- CORRECTION CLÉ : Initialisation de la carte ---
-    const map = L.map('map', {
-        maxBoundsViscosity: 1.0 
-    }).setView([46.6, 2.5], 6);
-
+    // ... (début de la fonction inchangé) ...
+    
+    // (Lignes existantes)
+    const map = L.map('map').setView([46.6, 2.5], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // ... (le code pour tauxMap et getColor reste le même) ...
+    // ... (suite du code de couleur inchangé) ...
 
     fetch(URL_REGION_GEOJSON)
-        // ... (le code fetch/then reste le même) ...
+        // ... (suite du fetch et du L.geoJson) ...
         .then(geojson => {
             L.geoJson(geojson, {
-                // ... (style et onEachFeature restent les mêmes) ...
+                // ... (style et onEachFeature inchangés) ...
             }).addTo(map);
 
-            // --- CORRECTION CLÉ : Forcer le redimensionnement après le rendu ---
-            setTimeout(() => {
+            // CORRECTION CRITIQUE : Invalider la taille après le chargement du GeoJSON
+            setTimeout(function() {
                 map.invalidateSize();
-            }, 50); // Petit délai de 50ms
+            }, 0);
+
         })
         .catch(error => {
-            // ... (gestion des erreurs) ...
+            // ... (gestion des erreurs inchangées) ...
         });
 }

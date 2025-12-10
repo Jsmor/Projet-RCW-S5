@@ -6,31 +6,29 @@ import { URL_GEOJSON } from './data_processor.js';
  * Affiche la carte choroplèthe du Taux Naturel (‰) par département.
  */
 export function setupMap(data) {
-    if (typeof L === 'undefined' || data.length === 0) return;
-
-    // --- CORRECTION CLÉ : Initialisation de la carte ---
-    const map = L.map('map', {
-        // Option essentielle : ne pas initialiser le centre tant que la taille n'est pas connue
-        maxBoundsViscosity: 1.0 
-    }).setView([46.6, 2.5], 6);
-
+    // ... (début de la fonction inchangé) ...
+    
+    // (Lignes existantes)
+    const map = L.map('map').setView([46.6, 2.5], 6);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // ... (le code pour tauxMap et getColor reste le même) ...
+    // ... (le reste du code de calcul du taux, getColor, etc., est inchangé) ...
 
     fetch(URL_GEOJSON)
-        // ... (le code fetch/then reste le même) ...
+        // ... (suite du fetch et du L.geoJson) ...
         .then(geojson => {
             L.geoJson(geojson, {
-                // ... (style et onEachFeature restent les mêmes) ...
+                // ... (style et onEachFeature inchangés) ...
             }).addTo(map);
-            
-            // --- CORRECTION CLÉ : Forcer le redimensionnement après le rendu ---
-            setTimeout(() => {
+
+            // CORRECTION CRITIQUE : Invalider la taille après le chargement du GeoJSON
+            // On utilise setTimeout(0) pour s'assurer que Flexbox a fini de calculer le conteneur.
+            setTimeout(function() {
                 map.invalidateSize();
-            }, 50); // Petit délai de 50ms pour laisser le DOM se stabiliser
+            }, 0);
+
         })
         .catch(error => {
-            // ... (gestion des erreurs) ...
+            // ... (gestion des erreurs inchangée) ...
         });
 }
