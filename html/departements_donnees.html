@@ -51,9 +51,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
     <script type="module" src="/Projet-RCW-S5/script/data_processor.js">
-        import { loadAndProcessAllData, aggregateRegionalData } from '../script/data_processor.js';
-        import { setupMap } from '../script/map_renderer.js';
-        import { setupDepartmentChart, setupRegionChart } from '../script/chart_renderer.js';
+        import { loadAndProcessAllData, aggregateRegionalData } from '/Projet-RCW-S5/script/data_processor.js';
+        import { setupMap } from '/Projet-RCW-S5/script/map_renderer.js';
+        import { setupDepartmentChart, setupRegionChart } from '/Projet-RCW-S5/script/chart_renderer.js';
 
         async function initializeDashboard() {
             const finalData = await loadAndProcessAllData();
