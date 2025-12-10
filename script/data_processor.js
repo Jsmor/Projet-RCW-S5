@@ -3,7 +3,7 @@
 // script/data_processor.js
 
 // BASE DU DÉPÔT : Essentielle pour les chemins absolus sur GitHub Pages
-const REPO_BASE = '/Projet-RCW-S5/web'; 
+const REPO_BASE = '/Projet-RCW-S5'; 
 
 // URIs des fichiers (Utilise la base absolue + le chemin relatif au dossier 'web')
 const URL_DEMOGRAPHY = REPO_BASE + '/data/naissDecess.csv'; 
