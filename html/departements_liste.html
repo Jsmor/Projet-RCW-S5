@@ -30,52 +30,20 @@
             <div id="departements-table-output">Chargement des données...</div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> <script type="module">
+    <script type="module">
         import { loadAndProcessAllData } from './script/data_processor.js';
+        import { renderDepartmentList } from './script/list_renderer.js';
 
         const outputDiv = document.getElementById('departements-table-output');
         
-        function generateTable(departmentData) {
-             // Tri par taux naturel pour avoir le plus dynamique en premier
-            departmentData.sort((a, b) => b.tauxNaturelPourMille - a.tauxNaturelPourMille);
-
-            let tableHTML = `
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Département</th>
-                            <th>Région</th>
-                            <th>Population</th>
-                            <th>Solde Naturel</th>
-                            <th>Taux Naturel (‰)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            departmentData.forEach(d => {
-                const soldeClass = d.soldeNaturel < 0 ? 'negative-solde' : 'positive-solde';
-                tableHTML += `
-                    <tr>
-                        <td>${d.codeINSEE}</td>
-                        <td>${d.departementLabel}</td>
-                        <td>${d.regionLabel}</td>
-                        <td>${d.population.toLocaleString('fr-FR')}</td>
-                        <td class="${soldeClass}">${d.soldeNaturel.toLocaleString('fr-FR')}</td>
-                        <td class="${soldeClass}">${d.tauxNaturelPourMille.toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-            tableHTML += `</tbody></table>`;
-            outputDiv.innerHTML = tableHTML;
-        }
-
         loadAndProcessAllData().then(departmentData => {
             if (departmentData.length > 0) {
-                generateTable(departmentData);
+                renderDepartmentList(departmentData, 'departements-table-output');
             } else {
                 outputDiv.innerHTML = `<p class="error-message">Impossible de générer le tableau: Aucune donnée complète.</p>`;
             }
+        }).catch(error => {
+            outputDiv.innerHTML = `<p class="error-message">Erreur lors du chargement des données. Consultez la console.</p>`;
         });
     </script>
 </body>

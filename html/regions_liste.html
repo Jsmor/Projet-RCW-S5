@@ -30,50 +30,21 @@
             <div id="regions-table-output">Chargement des données...</div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> <script type="module">
+    <script type="module">
         import { loadAndProcessAllData, aggregateRegionalData } from './script/data_processor.js';
+        import { renderRegionList } from './script/list_renderer.js';
 
         const outputDiv = document.getElementById('regions-table-output');
         
-        function generateTable(regionalData) {
-            let tableHTML = `
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Région</th>
-                            <th>Population</th>
-                            <th>Naissances</th>
-                            <th>Décès</th>
-                            <th>Solde Naturel</th>
-                            <th>Taux Naturel (‰)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            regionalData.forEach(r => {
-                const soldeClass = r.soldeNaturel < 0 ? 'negative-solde' : 'positive-solde';
-                tableHTML += `
-                    <tr>
-                        <td>${r.regionLabel}</td>
-                        <td>${r.population.toLocaleString('fr-FR')}</td>
-                        <td>${r.naissances.toLocaleString('fr-FR')}</td>
-                        <td>${r.deces.toLocaleString('fr-FR')}</td>
-                        <td class="${soldeClass}">${r.soldeNaturel.toLocaleString('fr-FR')}</td>
-                        <td class="${soldeClass}">${r.tauxNaturelPourMille.toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-            tableHTML += `</tbody></table>`;
-            outputDiv.innerHTML = tableHTML;
-        }
-
         loadAndProcessAllData().then(departmentData => {
             if (departmentData.length > 0) {
                 const regionalData = aggregateRegionalData(departmentData);
-                generateTable(regionalData);
+                renderRegionList(regionalData, 'regions-table-output');
             } else {
                 outputDiv.innerHTML = `<p class="error-message">Impossible de générer le tableau: Aucune donnée complète.</p>`;
             }
+        }).catch(error => {
+            outputDiv.innerHTML = `<p class="error-message">Erreur lors du chargement des données. Consultez la console.</p>`;
         });
     </script>
 </body>
