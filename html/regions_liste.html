@@ -32,6 +32,7 @@
         </div>
     </div>
     <script type="module">
+        // IMPORTANT : Utiliser le chemin absolu pour l'import (comme dans main.js)
         import { loadAndProcessAllData, aggregateRegionalData } from '/Projet-RCW-S5/script/data_processor.js';
         import { renderRegionList } from '/Projet-RCW-S5/script/list_renderer.js';
 
@@ -46,6 +47,7 @@
             }
         }).catch(error => {
             outputDiv.innerHTML = `<p class="error-message">Erreur lors du chargement des données. Consultez la console.</p>`;
+            console.error("Erreur de chargement dans la liste des régions:", error);
         });
     </script>
 </body>

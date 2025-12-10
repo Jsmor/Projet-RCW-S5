@@ -32,6 +32,7 @@
         </div>
     </div>
     <script type="module">
+        // IMPORTANT : Utiliser le chemin absolu pour l'import (comme dans main.js)
         import { loadAndProcessAllData } from '/Projet-RCW-S5/script/data_processor.js';
         import { renderDepartmentList } from '/Projet-RCW-S5/script/list_renderer.js';
 
@@ -45,6 +46,7 @@
             }
         }).catch(error => {
             outputDiv.innerHTML = `<p class="error-message">Erreur lors du chargement des données. Consultez la console.</p>`;
+            console.error("Erreur de chargement dans la liste des départements:", error);
         });
     </script>
 </body>
