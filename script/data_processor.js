@@ -1,10 +1,15 @@
 // script/data_processor.js
 
-// URIs des fichiers (Chemins relatifs depuis le dossier 'script')
-const URL_DEMOGRAPHY = '../data/naissDecess.csv'; 
-const URL_SOCIO_GEO = '../data/depPopulation.csv';
-export const URL_GEOJSON = '../geoData/departements.geojson'; 
-export const URL_REGION_GEOJSON = '../geoData/regions.geojson'; 
+// script/data_processor.js
+
+// BASE DU DÉPÔT : Essentielle pour les chemins absolus sur GitHub Pages
+const REPO_BASE = '/Projet-RCW-S5/web'; 
+
+// URIs des fichiers (Utilise la base absolue + le chemin relatif au dossier 'web')
+const URL_DEMOGRAPHY = REPO_BASE + '/data/naissDecess.csv'; 
+const URL_SOCIO_GEO = REPO_BASE + '/data/depPopulation.csv';
+export const URL_GEOJSON = REPO_BASE + '/geoData/departements.geojson'; 
+export const URL_REGION_GEOJSON = REPO_BASE + '/geoData/regions.geojson'; 
 
 // Le panneau de débogage est accessible via l'ID dans le HTML
 const debugPanel = document.getElementById('debug-panel');

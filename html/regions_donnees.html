@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Démographie - Régions & Analyse</title> 
-    <link rel="stylesheet" href="../style/main.css">
-    <link rel="icon" href="../images/jaj.png" type="image/png">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="/Projet-RCW-S5/web/style/main.css">
+    <link rel="icon" href="/Projet-RCW-S5/web/images/jaj.png" type="image/png">
 </head>
 <body>
     <header>
@@ -50,7 +49,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
-    <script type="module">
+    <script type="module" src="/Projet-RCW-S5/web/script/data_processor.js">
         import { loadAndProcessAllData, aggregateRegionalData } from '../script/data_processor.js';
         import { setupRegionChart } from '../script/chart_renderer.js';
         import { setupRegionMap } from '../script/region_map_renderer.js'; // Import de la carte régionale

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Démographie - Liste des Régions</title> 
-    <link rel="stylesheet" href="../style/main.css">
-    <link rel="icon" href="../images/jaj.png" type="image/png">
+    <link rel="stylesheet" href="/Projet-RCW-S5/web/style/main.css">
+    <link rel="icon" href="/Projet-RCW-S5/web/images/jaj.png" type="image/png">
     <style>
         .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .data-table th, .data-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
@@ -31,7 +31,7 @@
             <div id="regions-table-output">Chargement des données...</div>
         </div>
     </div>
-    <script type="module">
+    <script type="module" src="/Projet-RCW-S5/web/script/data_processor.js">
         // Mise à jour des chemins pour la modularité
         import { loadAndProcessAllData, aggregateRegionalData } from '../script/data_processor.js';
         import { renderRegionList } from '../script/list_renderer.js';
