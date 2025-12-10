@@ -1,0 +1,39 @@
+# deploy.yml
+
+name: Déploiement GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # ou master, selon le nom de votre branche principale
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    # Permissions requises pour le déploiement
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Configuration de l'environnement de déploiement
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      # Copie des fichiers du site web vers le répertoire de publication
+      # L'action 'upload-pages-artifact' exige que le contenu soit dans le répertoire spécifié.
+      # Nous disons à l'action de prendre le contenu du chemin web/html
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'html' # <--- C'est le chemin de votre dossier HTML final
+
+      # Déploiement sur GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
