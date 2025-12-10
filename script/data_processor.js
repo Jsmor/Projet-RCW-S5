@@ -3,10 +3,10 @@
 // script/data_processor.js
 
 // URIs des fichiers (Utilise la base absolue + le chemin relatif au dossier 'web')
-const URL_DEMOGRAPHY = '/Projet-RCW-S5/data/naissDecess.csv'; 
-const URL_SOCIO_GEO = '/Projet-RCW-S5/data/depPopulation.csv';
-export const URL_GEOJSON = '/Projet-RCW-S5/geoData/departements.geojson'; 
-export const URL_REGION_GEOJSON = '/Projet-RCW-S5/geoData/regions.geojson'; 
+const URL_DEMOGRAPHY = '../data/naissDecess.csv'; 
+const URL_SOCIO_GEO = '../data/depPopulation.csv';
+export const URL_GEOJSON = '../geoData/departements.geojson'; 
+export const URL_REGION_GEOJSON = '../geoData/regions.geojson'; 
 
 // Le panneau de débogage est accessible via l'ID dans le HTML
 const debugPanel = document.getElementById('debug-panel');
