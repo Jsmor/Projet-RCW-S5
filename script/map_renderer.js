@@ -6,30 +6,71 @@ import { URL_GEOJSON } from './data_processor.js';
  * Affiche la carte choroplèthe du Taux Naturel (‰) par département.
  */
 export function setupMap(data) {
-    // ... (début de la fonction inchangé) ...
-    
-    // (Lignes existantes)
+    if (typeof L === 'undefined' || data.length === 0) return;
+
     const map = L.map('map').setView([46.6, 2.5], 6);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // ... (le reste du code de calcul du taux, getColor, etc., est inchangé) ...
+    const tauxMap = new Map(data.map(d => [d.codeINSEE, d]));
+    const maxTaux = Math.max(...data.map(d => Math.abs(d.tauxNaturelPourMille)));
+
+    function getColor(taux) {
+        if (taux > 0) {
+            const intensity = Math.min(1, taux / maxTaux); 
+            return `rgba(0, 128, 0, ${0.3 + 0.7 * intensity})`; 
+        } else if (taux < 0) {
+            const intensity = Math.min(1, Math.abs(taux) / maxTaux);
+            return `rgba(255, 0, 0, ${0.3 + 0.7 * intensity})`; 
+        } else {
+            return '#ccc'; 
+        }
+    }
 
     fetch(URL_GEOJSON)
-        // ... (suite du fetch et du L.geoJson) ...
+        .then(response => {
+            if (!response.ok) throw new Error(`GeoJSON Statut ${response.status}`);
+            return response.json();
+        })
         .then(geojson => {
             L.geoJson(geojson, {
-                // ... (style et onEachFeature inchangés) ...
+                style: function(feature) {
+                    const code = feature.properties.code; 
+                    const depData = tauxMap.get(code);
+                    const taux = depData ? depData.tauxNaturelPourMille : 0;
+                    return {
+                        fillColor: getColor(taux),
+                        weight: 1,
+                        opacity: 1,
+                        color: 'white',
+                        fillOpacity: 0.7
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    const code = feature.properties.code;
+                    const depData = tauxMap.get(code);
+                    const nom = feature.properties.nom || 'Inconnu';
+
+                    if (depData) {
+                        layer.bindPopup(`
+                            <b>${depData.departementLabel || nom} (${code})</b><br>
+                            Région: ${depData.regionLabel}<br>
+                            Taux Naturel: <b>${depData.tauxNaturelPourMille.toFixed(2)} ‰</b>
+                        `);
+                    } else {
+                        layer.bindPopup(`<b>${nom} (${code})</b><br>Données non disponibles`);
+                    }
+                }
             }).addTo(map);
 
-            // CORRECTION CRITIQUE : Invalider la taille après le chargement du GeoJSON
+            // FIX: Invalidation de la taille avec délai de 500ms
             setTimeout(function() {
                 map.invalidateSize();
-            }, 200); // Délai de 200ms pour garantir le rendu du DOM
-        })
-        .catch(error => {
+            }, 500);
 
         })
         .catch(error => {
-            // ... (gestion des erreurs inchangée) ...
+            document.getElementById('debug-panel').innerHTML += `<p class="error-message">Erreur GeoJSON: ${error.message}.</p>`;
+            console.error("Erreur Leaflet/GeoJSON:", error);
         });
 }

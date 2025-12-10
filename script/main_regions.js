@@ -1,4 +1,4 @@
-// script/main_regions.js (Utilisé pour l'analyse des régions)
+// script/main_regions.js (Point d'entrée pour l'analyse régionale : regions_donnees.html)
 
 import { loadAndProcessAllData, aggregateRegionalData } from '/Projet-RCW-S5/script/data_processor.js';
 import { setupRegionChart } from '/Projet-RCW-S5/script/chart_renderer.js';

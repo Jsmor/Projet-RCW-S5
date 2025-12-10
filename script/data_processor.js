@@ -1,15 +1,11 @@
 // script/data_processor.js
 
-// script/data_processor.js
-
-// URIs des fichiers (Utilise la base absolue + le chemin relatif au dossier 'web')
-// Supprimez tous les '/Projet-RCW-S5' !
+// URIs des fichiers (RELATIFS au dossier 'script/')
 const URL_DEMOGRAPHY = '../data/naissDecess.csv'; 
 const URL_SOCIO_GEO = '../data/depPopulation.csv';
 export const URL_GEOJSON = '../geoData/departements.geojson'; 
-export const URL_REGION_GEOJSON = '../geoData/regions.geojson';
+export const URL_REGION_GEOJSON = '../geoData/regions.geojson'; 
 
-// Le panneau de débogage est accessible via l'ID dans le HTML
 const debugPanel = document.getElementById('debug-panel');
 
 /**
@@ -51,7 +47,6 @@ export async function loadCSV(url) {
             obj[header.trim()] = processedVal;
         });
         
-        // Nettoyer l'URI du département (première colonne)
         const firstHeader = headers[0];
         if (obj[firstHeader] && typeof obj[firstHeader] === 'string') {
             obj[firstHeader] = obj[firstHeader].trim();
@@ -64,7 +59,7 @@ export async function loadCSV(url) {
 }
 
 /**
- * Nettoie et uniformise les données socio-géographiques (gestion des doublons et des régions).
+ * Nettoie et uniformise les données socio-géographiques.
  */
 function cleanSocioGeoData(data) {
     const cleanData = {};
@@ -96,7 +91,6 @@ function cleanSocioGeoData(data) {
         }
     });
 
-    // Sélectionner la meilleure région
     Object.values(cleanData).forEach(dep => {
         const regionArray = Array.from(dep.regions);
         const nonLocalRegion = regionArray.find(r => r !== dep.departementLabel && r !== 'Rhône' && r !== 'Seine' && r !== 'Département de Paris');
@@ -113,13 +107,11 @@ function cleanSocioGeoData(data) {
  * Jointure, Calculs et Préparation des données finales.
  */
 export function processData(demographyData, socioGeoData) {
-    // Convertir les données socio-géo en Map pour une jointure rapide
     const socioGeoMap = new Map(socioGeoData.map(dep => [dep.departement, dep]));
     const finalData = [];
     let successfulJoins = 0;
     
     demographyData.forEach(demographyItem => {
-        // La clé dans le fichier démographie est 'Departement' (avec D majuscule)
         const uri = demographyItem.Departement; 
         const socioGeoItem = socioGeoMap.get(uri);
         

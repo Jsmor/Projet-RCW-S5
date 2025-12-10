@@ -4,18 +4,18 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     margin: 0; 
     padding: 0; 
-    background-color: #f8f9fa; /* Gris très clair */
+    background-color: #f8f9fa; 
     color: #333;
 }
 header { 
-    background-color: #007bff; /* Bleu primaire */
+    background-color: #007bff;
     color: white; 
     padding: 25px; 
     text-align: center; 
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 nav {
-    background-color: #343a40; /* Gris foncé */
+    background-color: #343a40; 
     padding: 10px 0;
 }
 nav a {
@@ -26,9 +26,17 @@ nav a {
     transition: background-color 0.3s;
 }
 nav a:hover {
-    background-color: #0056b3; /* Bleu plus foncé au survol */
+    background-color: #0056b3;
 }
-
+.container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    max-width: 1400px; 
+    margin: 20px auto; 
+    gap: 20px; 
+    padding: 0 10px;
+    min-height: 80vh; /* FIX: Garantit que le conteneur a une taille minimale */
+}
 .visualization-card { 
     background-color: white; 
     padding: 20px; 
@@ -36,37 +44,19 @@ nav a:hover {
     border-radius: 8px; 
     margin-bottom: 20px;
 }
-/* style/main.css (Mise à jour) */
-
-/* Assurez-vous que le conteneur principal a la hauteur nécessaire */
-.container { 
-    /* ... (code existant) ... */
-    /* Ajouter si vous avez un problème de hauteur du parent */
-    min-height: 80vh; 
-    display: flex; 
-    flex-wrap: wrap; 
-    max-width: 1400px; 
-    margin: 20px auto; 
-    gap: 20px; 
-    padding: 0 10px;
-}
-
-/* CIBLE CRITIQUE : Le conteneur de la carte */
+/* FIX: Ciblage du conteneur Leaflet */
 #map-container { 
     flex: 2; 
     min-width: 600px; 
-    height: 600px; /* Conserver cette hauteur fixe */
+    height: 600px; /* Conserver une hauteur fixe/définie */
+    position: relative; /* FIX: Assure le bon positionnement des enfants Leaflet */
 }
-
-/* La div Leaflet elle-même doit prendre 100% de son parent fixé */
 #map { 
     height: 100%; 
     width: 100%; 
-    /* Ajout d'une règle pour éviter les problèmes de débordement Flex */
-    min-height: 0; 
+    border-radius: 4px;
+    min-height: 0; /* FIX: Empêche le Flexbox de réduire la taille à zéro */
 }
-
-
 #chart-container { 
     flex: 1; 
     min-width: 400px; 
@@ -82,5 +72,26 @@ h2 {
 }
 .error-message { 
     color: #dc3545; 
+    font-weight: bold; 
+}
+.data-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+}
+.data-table th, .data-table td { 
+    border: 1px solid #ddd; 
+    padding: 12px; 
+    text-align: left; 
+}
+.data-table th { 
+    background-color: #f2f2f2; 
+}
+.negative-solde { 
+    color: #dc3545; 
+    font-weight: bold; 
+}
+.positive-solde { 
+    color: #28a745; 
     font-weight: bold; 
 }

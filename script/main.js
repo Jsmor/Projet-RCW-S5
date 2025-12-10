@@ -1,10 +1,9 @@
-// script/main.js (Utilisé pour l'analyse des départements)
+// script/main.js (Point d'entrée pour les pages d'analyse : departements_donnees.html)
 
 import { loadAndProcessAllData, aggregateRegionalData } from '/Projet-RCW-S5/script/data_processor.js';
 import { setupMap } from '/Projet-RCW-S5/script/map_renderer.js';
 import { setupDepartmentChart, setupRegionChart } from '/Projet-RCW-S5/script/chart_renderer.js';
 
-// Fonction d'initialisation
 async function initializeDashboard() {
     const finalData = await loadAndProcessAllData();
     const debugPanel = document.getElementById('debug-panel');
@@ -14,10 +13,9 @@ async function initializeDashboard() {
         
         const regionalData = aggregateRegionalData(finalData);
 
-        // Rendu des visualisations
-        setupMap(finalData); // Carte départementale
-        setupDepartmentChart(finalData); // Top/Flop Départements
-        setupRegionChart(regionalData); // Graphique Régions (Comparaison)
+        setupMap(finalData);
+        setupDepartmentChart(finalData);
+        setupRegionChart(regionalData);
         
     } else {
         if (debugPanel) debugPanel.innerHTML = `<p class="error-message">ERREUR: Aucune donnée finale pour l'affichage.</p>`;
