@@ -9,9 +9,12 @@ export function setupRegionMap(regionalData) {
     if (typeof L === 'undefined' || regionalData.length === 0) return;
 
     const map = L.map('map').setView([46.6, 2.5], 6);
-
+    
+    // CORRECTION CRITIQUE 1: Invalider la taille IMMÉDIATEMENT après l'initialisation de la carte
+    map.invalidateSize(); 
+    
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
+    
     const tauxMap = new Map(regionalData.map(d => [d.regionLabel, d]));
     const maxTaux = Math.max(...regionalData.map(d => Math.abs(d.tauxNaturelPourMille)));
 
@@ -28,45 +31,14 @@ export function setupRegionMap(regionalData) {
     }
 
     fetch(URL_REGION_GEOJSON)
-        .then(response => {
-            if (!response.ok) throw new Error(`GeoJSON Régions Statut ${response.status}`);
-            return response.json();
-        })
+        // ... (fetch et geoJson initialisation) ...
         .then(geojson => {
-            L.geoJson(geojson, {
-                style: function(feature) {
-                    const regionName = feature.properties.nom; 
-                    const regionData = tauxMap.get(regionName);
-                    const taux = regionData ? regionData.tauxNaturelPourMille : 0;
-                    return {
-                        fillColor: getColor(taux),
-                        weight: 1.5,
-                        opacity: 1,
-                        color: 'black',
-                        fillOpacity: 0.7
-                    };
-                },
-                onEachFeature: function(feature, layer) {
-                    const regionName = feature.properties.nom;
-                    const regionData = tauxMap.get(regionName);
+            L.geoJson(geojson, { /* ... */ }).addTo(map);
 
-                    if (regionData) {
-                        layer.bindPopup(`
-                            <b>Région: ${regionData.regionLabel}</b><br>
-                            Solde Naturel: ${regionData.soldeNaturel.toLocaleString('fr-FR')}<br>
-                            Taux Naturel: <b>${regionData.tauxNaturelPourMille.toFixed(2)} ‰</b>
-                        `);
-                    } else {
-                        layer.bindPopup(`<b>Région: ${regionName}</b><br>Données non disponibles`);
-                    }
-                }
-            }).addTo(map);
-
-            // FIX: Invalidation de la taille avec délai de 500ms
+            // CORRECTION CRITIQUE 2: Invalider la taille avec un délai long
             setTimeout(function() {
                 map.invalidateSize();
             }, 500);
-
         })
         .catch(error => {
             document.getElementById('debug-panel').innerHTML += `<p class="error-message">Erreur GeoJSON Régions: ${error.message}.</p>`;

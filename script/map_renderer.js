@@ -10,6 +10,9 @@ export function setupMap(data) {
 
     const map = L.map('map').setView([46.6, 2.5], 6);
 
+    // CORRECTION CRITIQUE 1: Invalider la taille IMMÉDIATEMENT après l'initialisation de la carte
+    map.invalidateSize(); 
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
     const tauxMap = new Map(data.map(d => [d.codeINSEE, d]));
@@ -28,46 +31,14 @@ export function setupMap(data) {
     }
 
     fetch(URL_GEOJSON)
-        .then(response => {
-            if (!response.ok) throw new Error(`GeoJSON Statut ${response.status}`);
-            return response.json();
-        })
-        .then(geojson => {
-            L.geoJson(geojson, {
-                style: function(feature) {
-                    const code = feature.properties.code; 
-                    const depData = tauxMap.get(code);
-                    const taux = depData ? depData.tauxNaturelPourMille : 0;
-                    return {
-                        fillColor: getColor(taux),
-                        weight: 1,
-                        opacity: 1,
-                        color: 'white',
-                        fillOpacity: 0.7
-                    };
-                },
-                onEachFeature: function(feature, layer) {
-                    const code = feature.properties.code;
-                    const depData = tauxMap.get(code);
-                    const nom = feature.properties.nom || 'Inconnu';
+            .then(response => { /* ... */ })
+            .then(geojson => {
+                L.geoJson(geojson, { /* ... */ }).addTo(map);
 
-                    if (depData) {
-                        layer.bindPopup(`
-                            <b>${depData.departementLabel || nom} (${code})</b><br>
-                            Région: ${depData.regionLabel}<br>
-                            Taux Naturel: <b>${depData.tauxNaturelPourMille.toFixed(2)} ‰</b>
-                        `);
-                    } else {
-                        layer.bindPopup(`<b>${nom} (${code})</b><br>Données non disponibles`);
-                    }
-                }
-            }).addTo(map);
-
-            // FIX: Invalidation de la taille avec délai de 500ms
-            setTimeout(function() {
-                map.invalidateSize();
-            }, 500);
-
+                // CORRECTION CRITIQUE 2: Invalider la taille avec un délai long
+                setTimeout(function() {
+                    map.invalidateSize();
+                }, 500);
         })
         .catch(error => {
             document.getElementById('debug-panel').innerHTML += `<p class="error-message">Erreur GeoJSON: ${error.message}.</p>`;
