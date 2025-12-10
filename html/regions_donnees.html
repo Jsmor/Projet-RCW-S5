@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyse par Région | Démographie 2021</title>
-    <link rel="stylesheet" href="style/main.css">
+    <title>Régions & Analyse | Démographie 2021</title>
+    <link rel="stylesheet" href="../style/main.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 </head>
 <body>
@@ -24,13 +24,15 @@
             <h2>Carte du Taux Naturel par Région (‰)</h2>
             <div id="map" style="height: 100%;"></div>
         </div>
-
+        
         <div id="stats-and-chart-container" style="flex: 1; min-width: 400px;">
+            
             <div id="stats-container" class="visualization-card">
                 <h2>Statistiques Clés</h2>
                 <div id="regional-stats-output">Chargement...</div>
             </div>
-            <div id="taux-regional-container" class="visualization-card">
+            
+             <div id="taux-regional-container" class="visualization-card">
                 <h2>Classement Régional par Taux Naturel (‰)</h2>
                 <div class="chart-canvas">
                     <canvas id="tauxRegionChart"></canvas>
@@ -47,34 +49,27 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
-    <!-- // Bloc à modifier dans html/regions_donnees.html -->
-
     <script type="module">
         import { loadAndProcessAllData, aggregateRegionalData } from '../script/data_processor.js';
         import { setupRegionChart } from '../script/chart_renderer.js';
-        import { setupRegionMap } from '../script/region_map_renderer.js'; // NOUVEL IMPORT
+        import { setupRegionMap } from '../script/region_map_renderer.js'; // Import de la carte régionale
+        
+        const debugPanel = document.getElementById('debug-panel');
 
-        // ... (displayRegionalStats reste inchangé) ...
+        function displayRegionalStats(regionalData) {
+            const totalPopulation = regionalData.reduce((acc, r) => acc + r.population, 0);
+            const totalSolde = regionalData.reduce((acc, r) => acc + r.soldeNaturel, 0);
+            const totalTaux = (totalSolde / totalPopulation) * 1000;
 
-        async function initializeRegionalDashboard() {
-            const departmentData = await loadAndProcessAllData();
-
-            if (departmentData && departmentData.length > 0) {
-                const regionalData = aggregateRegionalData(departmentData);
-
-                debugPanel.innerHTML = `Données agrégées pour ${regionalData.length} régions.`;
-
-                displayRegionalStats(regionalData);
-                setupRegionChart(regionalData);
-                setupRegionMap(regionalData); // APPEL DE LA NOUVELLE CARTE
-
-            } else {
-                debugPanel.innerHTML = `<p class="error-message">ERREUR: Aucune donnée départementale complète pour l'agrégation.</p>`;
-            }
+            document.getElementById('regional-stats-output').innerHTML = `
+                <p><strong>Total Population (2021) :</strong> ${totalPopulation.toLocaleString('fr-FR')}</p>
+                <p><strong>Solde Naturel National :</strong> ${totalSolde.toLocaleString('fr-FR')}</p>
+                <p><strong>Taux National (‰) :</strong> ${totalTaux.toFixed(2)} ‰</p>
+                <hr>
+                <p>Région en tête (Taux) : <strong>${regionalData[0].regionLabel}</strong> (${regionalData[0].tauxNaturelPourMille.toFixed(2)} ‰)</p>
+                <p>Région la moins dynamique : <strong>${regionalData[regionalData.length - 1].regionLabel}</strong> (${regionalData[regionalData.length - 1].tauxNaturelPourMille.toFixed(2)} ‰)</p>
+            `;
         }
-
-        initializeRegionalDashboard();
-    </script>
 
         async function initializeRegionalDashboard() {
             const departmentData = await loadAndProcessAllData();
@@ -85,7 +80,8 @@
                 debugPanel.innerHTML = `Données agrégées pour ${regionalData.length} régions.`;
                 
                 displayRegionalStats(regionalData);
-                setupRegionChart(regionalData); // Utilisation du module de rendu
+                setupRegionChart(regionalData); 
+                setupRegionMap(regionalData); // Appel de la carte régionale
                 
             } else {
                 debugPanel.innerHTML = `<p class="error-message">ERREUR: Aucune donnée départementale complète pour l'agrégation.</p>`;

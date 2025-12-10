@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analyse par Département | Démographie 2021</title>
-    <link rel="stylesheet" href="style/main.css">
+    <title>Départements & Analyse | Démographie 2021</title>
+    <link rel="stylesheet" href="../style/main.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 </head>
 <body>
@@ -15,11 +15,13 @@
         <a href="index.html">Accueil</a>
         <a href="departements_donnees.html">Départements & Analyse</a>
         <a href="regions_donnees.html">Régions & Analyse</a>
+        <a href="departements_liste.html">Liste Départements</a>
+        <a href="regions_liste.html">Liste Régions</a>
     </nav>
 
     <div class="container">
         <div id="map-container" class="visualization-card">
-            <h2>Carte du Taux Naturel (‰)</h2>
+            <h2>Carte du Taux Naturel par Département (‰)</h2>
             <div id="map"></div>
         </div>
 
@@ -31,7 +33,7 @@
                 </div>
             </div>
             <div class="visualization-card">
-                <h2>Taux Naturel par Région</h2>
+                <h2>Taux Naturel par Région (Comparaison)</h2>
                 <div class="chart-canvas">
                     <canvas id="tauxRegionChart"></canvas>
                 </div>
@@ -49,10 +51,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     
     <script type="module">
-        // Importation des fonctions depuis les modules séparés
-        import { loadAndProcessAllData, aggregateRegionalData } from './script/data_processor.js';
-        import { setupMap } from './script/map_renderer.js';
-        import { setupDepartmentChart, setupRegionChart } from './script/chart_renderer.js';
+        import { loadAndProcessAllData, aggregateRegionalData } from '../script/data_processor.js';
+        import { setupMap } from '../script/map_renderer.js';
+        import { setupDepartmentChart, setupRegionChart } from '../script/chart_renderer.js';
 
         async function initializeDashboard() {
             const finalData = await loadAndProcessAllData();
@@ -60,10 +61,8 @@
             if (finalData && finalData.length > 0) {
                 document.getElementById('debug-panel').innerHTML = `Données chargées et prêtes pour ${finalData.length} départements.`;
                 
-                // Calculer l'agrégation nécessaire pour le graphique régional sur cette page
                 const regionalData = aggregateRegionalData(finalData);
 
-                // Appel des fonctions de rendu des modules
                 setupMap(finalData);
                 setupDepartmentChart(finalData);
                 setupRegionChart(regionalData);

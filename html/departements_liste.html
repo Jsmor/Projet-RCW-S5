@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des Départements et Données Associées</title>
-    <link rel="stylesheet" href="style/main.css">
+    <title>Liste des Départements | Démographie 2021</title>
+    <link rel="stylesheet" href="../style/main.css">
     <style>
         .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .data-table th, .data-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
@@ -31,8 +31,8 @@
         </div>
     </div>
     <script type="module">
-        import { loadAndProcessAllData } from './script/data_processor.js';
-        import { renderDepartmentList } from './script/list_renderer.js';
+        import { loadAndProcessAllData } from '../script/data_processor.js';
+        import { renderDepartmentList } from '../script/list_renderer.js';
 
         const outputDiv = document.getElementById('departements-table-output');
         
@@ -43,7 +43,7 @@
                 outputDiv.innerHTML = `<p class="error-message">Impossible de générer le tableau: Aucune donnée complète.</p>`;
             }
         }).catch(error => {
-            outputDiv.innerHTML = `<p class="error-message">Erreur lors du chargement des données. Consultez la console.</p>`;
+             outputDiv.innerHTML = `<p class="error-message">Erreur lors du chargement des données. Consultez la console.</p>`;
         });
     </script>
 </body>

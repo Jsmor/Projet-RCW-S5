@@ -1,11 +1,12 @@
 // script/data_processor.js
 
-// URIs des fichiers (Simule la récupération des requêtes SPARQL)
-const URL_DEMOGRAPHY = 'naissDecess.csv';
-const URL_SOCIO_GEO = 'depPopulation.csv';
-const URL_GEOJSON = 'departements.geojson';
+// URIs des fichiers (Chemins relatifs depuis le dossier 'script')
+const URL_DEMOGRAPHY = '../data/naissDecess.csv'; 
+const URL_SOCIO_GEO = '../data/depPopulation.csv';
+export const URL_GEOJSON = '../geoData/departements.geojson'; 
+export const URL_REGION_GEOJSON = '../geoData/regions.geojson'; 
 
-// Affichage de débogage (sera mis à jour sur la page)
+// Le panneau de débogage est accessible via l'ID dans le HTML
 const debugPanel = document.getElementById('debug-panel');
 
 /**
@@ -15,7 +16,8 @@ export async function loadCSV(url) {
     if (debugPanel) debugPanel.innerHTML += `Tentative de chargement de ${url}...<br>`;
     const response = await fetch(url);
     if (!response.ok) {
-        throw new Error(`Échec du chargement de ${url}: Statut ${response.status}`);
+        const status = response.status;
+        throw new Error(`Échec du chargement de ${url}: Statut ${status}`);
     }
     const text = await response.text();
     
@@ -30,7 +32,6 @@ export async function loadCSV(url) {
         const line = lines[i].trim();
         if (line === '') continue;
 
-        // Utiliser une méthode simple de split
         const values = line.split(','); 
         
         const obj = {};
@@ -44,7 +45,7 @@ export async function loadCSV(url) {
                     processedVal = num;
                 }
             }
-            obj[header.trim()] = processedVal; // Utiliser header.trim() pour la clé
+            obj[header.trim()] = processedVal;
         });
         
         // Nettoyer l'URI du département (première colonne)
@@ -78,17 +79,14 @@ function cleanSocioGeoData(data) {
                 };
             }
             
-            // 1. Récupérer le label
             if (item.departementLabel && !cleanData[uri].departementLabel) {
                 cleanData[uri].departementLabel = item.departementLabel;
             }
 
-            // 2. Récupérer la population maximale
             if (item.population && item.population > cleanData[uri].population) {
                 cleanData[uri].population = item.population;
             }
 
-            // 3. Récupérer les régions
             if (item.regionLabel && item.regionLabel !== item.departementLabel && item.regionLabel.indexOf('https') === -1) {
                 cleanData[uri].regions.add(item.regionLabel);
             }
@@ -98,14 +96,12 @@ function cleanSocioGeoData(data) {
     // Sélectionner la meilleure région
     Object.values(cleanData).forEach(dep => {
         const regionArray = Array.from(dep.regions);
-        // Tenter de choisir une région de haut niveau
         const nonLocalRegion = regionArray.find(r => r !== dep.departementLabel && r !== 'Rhône' && r !== 'Seine' && r !== 'Département de Paris');
         
         dep.regionLabel = nonLocalRegion || regionArray[0] || 'Inconnu';
         delete dep.regions;
     });
     
-    // Filtrer les départements qui ont une population et un label (pour la jointure)
     return Object.values(cleanData).filter(dep => dep.departementLabel && dep.population);
 }
 
@@ -114,15 +110,14 @@ function cleanSocioGeoData(data) {
  * Jointure, Calculs et Préparation des données finales.
  */
 export function processData(demographyData, socioGeoData) {
+    // Convertir les données socio-géo en Map pour une jointure rapide
     const socioGeoMap = new Map(socioGeoData.map(dep => [dep.departement, dep]));
     const finalData = [];
     let successfulJoins = 0;
     
     demographyData.forEach(demographyItem => {
-        // CORRECTION CLÉ: Utiliser la clé 'Departement' (du fichier naissDecess.csv)
+        // La clé dans le fichier démographie est 'Departement' (avec D majuscule)
         const uri = demographyItem.Departement; 
-        
-        // Utiliser la Map pour la jointure rapide
         const socioGeoItem = socioGeoMap.get(uri);
         
         if (socioGeoItem && socioGeoItem.population && socioGeoItem.population > 0) {
@@ -153,35 +148,7 @@ export function processData(demographyData, socioGeoData) {
 }
 
 /**
- * Fonction principale pour charger et traiter toutes les données.
- */
-export async function loadAndProcessAllData() {
-    try {
-        // 1. Récupération des données (simule les deux requêtes SPARQL)
-        const demographyData = await loadCSV(URL_DEMOGRAPHY);
-        const socioGeoData = await loadCSV(URL_SOCIO_GEO);
-
-        // 2. Nettoyage et Jointure
-        const socioGeoCleanedList = cleanSocioGeoData(socioGeoData);
-        
-        // 3. Calculs finaux
-        const finalData = processData(demographyData, socioGeoCleanedList);
-        
-        return finalData;
-
-    } catch (error) {
-        document.getElementById('debug-panel').innerHTML = `<p class="error-message">ERREUR CRITIQUE DANS DATA PROCESSING: ${error.message}.</p>`;
-        console.error("Erreur critique lors du chargement ou du traitement des données.", error);
-        return [];
-    }
-}
-// script/data_processor.js (AJOUT)
-
-/**
  * Agrège les données départementales au niveau régional.
- * Calcule le Solde Naturel Régional et le Taux Naturel Régional (pour 1000).
- * @param {Array} departmentData - Les données calculées au niveau départemental.
- * @returns {Array} Un tableau d'objets régionaux.
  */
 export function aggregateRegionalData(departmentData) {
     const regionalAgg = {};
@@ -205,7 +172,6 @@ export function aggregateRegionalData(departmentData) {
         regionalAgg[region].departementsCount += 1;
     });
 
-    // Calculer le solde et le taux pour chaque région
     return Object.values(regionalAgg).map(agg => {
         const soldeNaturel = agg.naissances - agg.deces;
         const tauxNaturelPourMille = (soldeNaturel / agg.population) * 1000;
@@ -219,4 +185,25 @@ export function aggregateRegionalData(departmentData) {
             tauxNaturelPourMille: tauxNaturelPourMille
         };
     }).sort((a, b) => b.tauxNaturelPourMille - a.tauxNaturelPourMille);
+}
+
+/**
+ * Fonction principale pour charger et traiter toutes les données.
+ */
+export async function loadAndProcessAllData() {
+    try {
+        const demographyData = await loadCSV(URL_DEMOGRAPHY);
+        const socioGeoData = await loadCSV(URL_SOCIO_GEO);
+
+        const socioGeoCleanedList = cleanSocioGeoData(socioGeoData);
+        
+        const finalData = processData(demographyData, socioGeoCleanedList);
+        
+        return finalData;
+
+    } catch (error) {
+        document.getElementById('debug-panel').innerHTML = `<p class="error-message">ERREUR CRITIQUE DANS DATA PROCESSING: ${error.message}.</p>`;
+        console.error("Erreur critique lors du chargement ou du traitement des données.", error);
+        return [];
+    }
 }

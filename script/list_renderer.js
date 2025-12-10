@@ -2,16 +2,14 @@
 
 /**
  * Génère le tableau HTML des données départementales.
- * @param {Array} departmentData - Les données départementales complètes.
- * @param {string} outputDivId - L'ID de l'élément div où insérer le tableau.
  */
 export function renderDepartmentList(departmentData, outputDivId) {
-    if (departmentData.length === 0) {
-        document.getElementById(outputDivId).innerHTML = `<p class="error-message">Aucune donnée départementale complète à afficher.</p>`;
+    const outputDiv = document.getElementById(outputDivId);
+    if (!outputDiv || departmentData.length === 0) {
+        if (outputDiv) outputDiv.innerHTML = `<p class="error-message">Aucune donnée départementale complète à afficher.</p>`;
         return;
     }
 
-    // Tri par taux naturel pour avoir le plus dynamique en premier
     departmentData.sort((a, b) => b.tauxNaturelPourMille - a.tauxNaturelPourMille);
 
     let tableHTML = `
@@ -42,22 +40,20 @@ export function renderDepartmentList(departmentData, outputDivId) {
         `;
     });
     tableHTML += `</tbody></table>`;
-    document.getElementById(outputDivId).innerHTML = tableHTML;
+    outputDiv.innerHTML = tableHTML;
 }
 
 
 /**
  * Génère le tableau HTML des données régionales agrégées.
- * @param {Array} regionalData - Les données régionales agrégées.
- * @param {string} outputDivId - L'ID de l'élément div où insérer le tableau.
  */
 export function renderRegionList(regionalData, outputDivId) {
-    if (regionalData.length === 0) {
-        document.getElementById(outputDivId).innerHTML = `<p class="error-message">Aucune donnée régionale complète à afficher.</p>`;
+    const outputDiv = document.getElementById(outputDivId);
+    if (!outputDiv || regionalData.length === 0) {
+        if (outputDiv) outputDiv.innerHTML = `<p class="error-message">Aucune donnée régionale complète à afficher.</p>`;
         return;
     }
 
-    // Tri par taux naturel pour avoir le plus dynamique en premier
     regionalData.sort((a, b) => b.tauxNaturelPourMille - a.tauxNaturelPourMille);
 
     let tableHTML = `
@@ -88,5 +84,5 @@ export function renderRegionList(regionalData, outputDivId) {
         `;
     });
     tableHTML += `</tbody></table>`;
-    document.getElementById(outputDivId).innerHTML = tableHTML;
+    outputDiv.innerHTML = tableHTML;
 }
