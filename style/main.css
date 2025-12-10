@@ -95,3 +95,10 @@ h2 {
     color: #28a745; 
     font-weight: bold; 
 }
+/* style/main.css (AJOUT pour forcer le rendu Leaflet dans Flexbox) */
+
+/* Ciblage de la classe interne de Leaflet */
+.leaflet-container {
+    height: 100%; /* Garantir que la carte Leaflet prend toute la hauteur de #map (600px) */
+    width: 100%;
+}
