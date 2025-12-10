@@ -97,8 +97,37 @@ h2 {
 }
 /* style/main.css (AJOUT pour forcer le rendu Leaflet dans Flexbox) */
 
-/* Ciblage de la classe interne de Leaflet */
+/* style/main.css - CORRECTION FINALE POUR LEAFLET */
+
+/* 1. Forcer le conteneur à prendre la taille */
 .leaflet-container {
-    height: 100%; /* Garantir que la carte Leaflet prend toute la hauteur de #map (600px) */
+    height: 100%;
     width: 100%;
+}
+
+/* 2. CRITIQUE : Empêcher le CSS global de casser les tuiles */
+/* Cela annule 'max-width: 100%' ou 'display: block' qui pourraient exister ailleurs */
+.leaflet-container img.leaflet-tile {
+    max-width: none !important;
+    max-height: none !important;
+    width: 256px !important;
+    height: 256px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 3. S'assurer que les panneaux ne sont pas déformés */
+.leaflet-pane, 
+.leaflet-tile, 
+.leaflet-marker-icon, 
+.leaflet-marker-shadow, 
+.leaflet-tile-container, 
+.leaflet-pane > svg, 
+.leaflet-pane > canvas, 
+.leaflet-zoom-box, 
+.leaflet-image-layer, 
+.leaflet-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
 }
