@@ -1,0 +1,72 @@
+/* style/main.css */
+
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    background-color: #f8f9fa; /* Gris très clair */
+    color: #333;
+}
+header { 
+    background-color: #007bff; /* Bleu primaire */
+    color: white; 
+    padding: 25px; 
+    text-align: center; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+nav {
+    background-color: #343a40; /* Gris foncé */
+    padding: 10px 0;
+}
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+nav a:hover {
+    background-color: #0056b3; /* Bleu plus foncé au survol */
+}
+.container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    max-width: 1400px; 
+    margin: 20px auto; 
+    gap: 20px; 
+    padding: 0 10px;
+}
+.visualization-card { 
+    background-color: white; 
+    padding: 20px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+    border-radius: 8px; 
+    margin-bottom: 20px;
+}
+#map-container { 
+    flex: 2; 
+    min-width: 600px; 
+    height: 600px; 
+}
+#map { 
+    height: 100%; 
+    width: 100%; 
+    border-radius: 4px;
+}
+#chart-container { 
+    flex: 1; 
+    min-width: 400px; 
+}
+.chart-canvas { 
+    height: 400px; 
+}
+h2 { 
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 10px; 
+    margin-top: 0; 
+    color: #007bff;
+}
+.error-message { 
+    color: #dc3545; 
+    font-weight: bold; 
+}
