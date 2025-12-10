@@ -31,9 +31,9 @@
             <div id="departements-table-output">Chargement des données...</div>
         </div>
     </div>
-    <script type="module" src="/Projet-RCW-S5/script/data_processor.js">
-        import { loadAndProcessAllData } from '../script/data_processor.js';
-        import { renderDepartmentList } from '../script/list_renderer.js';
+    <script type="module">
+        import { loadAndProcessAllData } from '/Projet-RCW-S5/script/data_processor.js';
+        import { renderDepartmentList } from '/Projet-RCW-S5/script/list_renderer.js';
 
         const outputDiv = document.getElementById('departements-table-output');
         
@@ -44,7 +44,7 @@
                 outputDiv.innerHTML = `<p class="error-message">Impossible de générer le tableau: Aucune donnée complète.</p>`;
             }
         }).catch(error => {
-             outputDiv.innerHTML = `<p class="error-message">Erreur lors du chargement des données. Consultez la console.</p>`;
+            outputDiv.innerHTML = `<p class="error-message">Erreur lors du chargement des données. Consultez la console.</p>`;
         });
     </script>
 </body>
