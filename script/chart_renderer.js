@@ -20,8 +20,9 @@ export function setupDepartmentChart(data) {
             labels: chartData.map(d => `${d.departementLabel} (${d.codeINSEE})`),
             datasets: [{
                 label: 'Taux Naturel (‰)',
-                data: chartData.map(d => d.tauxNaturalPourMille),
-                backgroundColor: chartData.map(d => d.tauxNaturalPourMille > 0 ? 'rgba(0, 128, 0, 0.7)' : 'rgba(255, 0, 0, 0.7)')
+                // CORRECTION ICI : Remplacer tauxNaturalPourMille par tauxNaturelPourMille
+                data: chartData.map(d => d.tauxNaturelPourMille), 
+                backgroundColor: chartData.map(d => d.tauxNaturelPourMille > 0 ? 'rgba(0, 128, 0, 0.7)' : 'rgba(255, 0, 0, 0.7)')
             }]
         },
         options: {
