@@ -24,7 +24,9 @@ export function setupRegionMap(regionalData) {
             // CORRECTION CRITIQUE : Invalider la taille après le chargement du GeoJSON
             setTimeout(function() {
                 map.invalidateSize();
-            }, 0);
+            }, 200); // Délai de 200ms pour garantir le rendu du DOM
+        })
+        .catch(error => {
 
         })
         .catch(error => {

@@ -22,10 +22,11 @@ export function setupMap(data) {
             }).addTo(map);
 
             // CORRECTION CRITIQUE : Invalider la taille après le chargement du GeoJSON
-            // On utilise setTimeout(0) pour s'assurer que Flexbox a fini de calculer le conteneur.
             setTimeout(function() {
                 map.invalidateSize();
-            }, 0);
+            }, 200); // Délai de 200ms pour garantir le rendu du DOM
+        })
+        .catch(error => {
 
         })
         .catch(error => {

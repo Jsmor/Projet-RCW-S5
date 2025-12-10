@@ -28,14 +28,7 @@ nav a {
 nav a:hover {
     background-color: #0056b3; /* Bleu plus foncé au survol */
 }
-.container { 
-    display: flex; 
-    flex-wrap: wrap; 
-    max-width: 1400px; 
-    margin: 20px auto; 
-    gap: 20px; 
-    padding: 0 10px;
-}
+
 .visualization-card { 
     background-color: white; 
     padding: 20px; 
@@ -43,16 +36,37 @@ nav a:hover {
     border-radius: 8px; 
     margin-bottom: 20px;
 }
+/* style/main.css (Mise à jour) */
+
+/* Assurez-vous que le conteneur principal a la hauteur nécessaire */
+.container { 
+    /* ... (code existant) ... */
+    /* Ajouter si vous avez un problème de hauteur du parent */
+    /* min-height: 80vh; */ 
+    display: flex; 
+    flex-wrap: wrap; 
+    max-width: 1400px; 
+    margin: 20px auto; 
+    gap: 20px; 
+    padding: 0 10px;
+}
+
+/* CIBLE CRITIQUE : Le conteneur de la carte */
 #map-container { 
     flex: 2; 
     min-width: 600px; 
-    height: 600px; 
+    height: 600px; /* Conserver cette hauteur fixe */
 }
+
+/* La div Leaflet elle-même doit prendre 100% de son parent fixé */
 #map { 
     height: 100%; 
     width: 100%; 
-    border-radius: 4px;
+    /* Ajout d'une règle pour éviter les problèmes de débordement Flex */
+    min-height: 0; 
 }
+
+
 #chart-container { 
     flex: 1; 
     min-width: 400px; 
